@@ -1,0 +1,36 @@
+package com.hbu.unimar.repository;
+
+import com.hbu.unimar.domain.entity.Cirurgia;
+import com.hbu.unimar.domain.projection.CirurgiaGanttProjection;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public interface CirurgiaRepository extends JpaRepository<Cirurgia, UUID> {
+    @Query(value = """
+        SELECT
+            c.id AS id,
+            p.nome AS pacienteNome,
+            s.nome_numero AS salaNome,
+            c.status_atual AS statusAtual,
+            c.prioridade AS prioridade,
+            lower(c.horario_previsto) AS inicioPrevisto,
+            upper(c.horario_previsto) AS fimPrevisto,
+            lower(c.horario_real) AS inicioReal,
+            upper(c.horario_real) AS fimReal
+        FROM cirurgia c
+        JOIN paciente p ON c.paciente_id = p.id
+        JOIN sala_cirurgica s ON c.sala_id = s.id
+        WHERE c.status_atual != 'CANCELADO'
+        AND c.horario_previsto && tstzrange(CAST(:inicio AS timestamptz), CAST(:fim AS timestamptz), '[]')
+        ORDER BY lower(c.horario_previsto) ASC
+        """, nativeQuery = true)
+    List<CirurgiaGanttProjection> findProjecaoGanttPorPeriodo(
+            @Param("inicio") ZonedDateTime inicio,
+            @Param("fim") ZonedDateTime fim
+    );
+}
