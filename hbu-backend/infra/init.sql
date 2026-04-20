@@ -125,4 +125,4 @@ CREATE TABLE usuario
 
 -- Carga inicial: Administrador do Sistema
 INSERT INTO usuario (email, senha, role, ativo)
-VALUES ('admin@hbu.com.br', '$2a$10$wN1qG.V.H.U8c3KzH5x6.Ou1k9K6g9.0m5vF5rW1G0eT5qK.7Jj2', 'ROLE_ADMIN', true);
+VALUES ('admin@hbu.com.br', '$2a$10$Mj3rvWe5V5YTLCzUl9naguHp2OGkNV/AIfLB0FR2CYpIu3wHkewDK', 'ROLE_ADMIN', true);
