@@ -63,18 +63,18 @@ public class DataSeeder implements CommandLineRunner {
         profissionalService.criarProfissional(new ProfissionalRequestDTO("Dra. Amanda Rocha",  "CRM 10101", "Anestesiologia"));
 
         // 4. Criar Pacientes (12 pacientes)
-        var pac1  = pacienteService.criarPaciente(new PacienteRequestDTO("João da Silva",    "25600573014", LocalDate.of(1980,  5, 15)));
-        var pac2  = pacienteService.criarPaciente(new PacienteRequestDTO("Maria Oliveira",   "98218386009", LocalDate.of(1992,  8, 20)));
-        var pac3  = pacienteService.criarPaciente(new PacienteRequestDTO("Carlos Pereira",   "63795209021", LocalDate.of(1975, 11, 10)));
-        var pac4  = pacienteService.criarPaciente(new PacienteRequestDTO("Ana Costa",        "82326914090", LocalDate.of(2000,  2, 25)));
-        var pac5  = pacienteService.criarPaciente(new PacienteRequestDTO("Pedro Santos",     "63398871046", LocalDate.of(1988,  6, 30)));
-        var pac6  = pacienteService.criarPaciente(new PacienteRequestDTO("Lucas Ferreira",   "12656940010", LocalDate.of(1995,  9,  5)));
-        var pac7  = pacienteService.criarPaciente(new PacienteRequestDTO("Mariana Lima",     "35540450043", LocalDate.of(1982, 12, 12)));
-        var pac8  = pacienteService.criarPaciente(new PacienteRequestDTO("Fernando Gomes",   "63970115000", LocalDate.of(1970,  4, 18)));
-        var pac9  = pacienteService.criarPaciente(new PacienteRequestDTO("Beatriz Martins",  "00074010000", LocalDate.of(1998,  7, 22)));
-        var pac10 = pacienteService.criarPaciente(new PacienteRequestDTO("Rafael Carvalho",  "60780270002", LocalDate.of(1985, 10,  8)));
-        var pac11 = pacienteService.criarPaciente(new PacienteRequestDTO("Juliana Ribeiro",  "53289080072", LocalDate.of(1990,  1, 14)));
-        var pac12 = pacienteService.criarPaciente(new PacienteRequestDTO("Diego Araújo",     "728025010623", LocalDate.of(1978,  3, 27)));
+        var pac1  = pacienteService.criarPaciente(new PacienteRequestDTO("João da Silva",    "256.005.730-14", LocalDate.of(1980,  5, 15)));
+        var pac2  = pacienteService.criarPaciente(new PacienteRequestDTO("Maria Oliveira",   "982.183.860-09", LocalDate.of(1992,  8, 20)));
+        var pac3  = pacienteService.criarPaciente(new PacienteRequestDTO("Carlos Pereira",   "637.952.090-21", LocalDate.of(1975, 11, 10)));
+        var pac4  = pacienteService.criarPaciente(new PacienteRequestDTO("Ana Costa",        "823.269.140-90", LocalDate.of(2000,  2, 25)));
+        var pac5  = pacienteService.criarPaciente(new PacienteRequestDTO("Pedro Santos",     "633.988.710-46", LocalDate.of(1988,  6, 30)));
+        var pac6  = pacienteService.criarPaciente(new PacienteRequestDTO("Lucas Ferreira",   "126.569.400-10", LocalDate.of(1995,  9,  5)));
+        var pac7  = pacienteService.criarPaciente(new PacienteRequestDTO("Mariana Lima",     "355.404.500-43", LocalDate.of(1982, 12, 12)));
+        var pac8  = pacienteService.criarPaciente(new PacienteRequestDTO("Fernando Gomes",   "639.701.150-00", LocalDate.of(1970,  4, 18)));
+        var pac9  = pacienteService.criarPaciente(new PacienteRequestDTO("Beatriz Martins",  "000.740.100-00", LocalDate.of(1998,  7, 22)));
+        var pac10 = pacienteService.criarPaciente(new PacienteRequestDTO("Rafael Carvalho",  "607.802.700-02", LocalDate.of(1985, 10,  8)));
+        var pac11 = pacienteService.criarPaciente(new PacienteRequestDTO("Juliana Ribeiro",  "532.890.800-72", LocalDate.of(1990,  1, 14)));
+        var pac12 = pacienteService.criarPaciente(new PacienteRequestDTO("Diego Araújo",     "728.025.010-62", LocalDate.of(1978,  3, 27)));
 
         // 5. Criar Procedimentos TUSS (8 procedimentos)
         procedimentoService.criarProcedimento(new ProcedimentoCirurgicoRequestDTO("31005470", "Apendicectomia",                    90,  TipoSala.SALA_PADRAO));
