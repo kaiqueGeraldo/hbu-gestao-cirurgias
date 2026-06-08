@@ -84,4 +84,10 @@ public class CirurgiaProcedimentoService {
 
         return salvas.stream().map(CirurgiaProcedimentoResponseDTO::new).toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<CirurgiaProcedimentoResponseDTO> listarProcedimentosDaCirurgia(UUID cirurgiaId) {
+        return cirurgiaProcedimentoRepository.findByCirurgiaId(cirurgiaId)
+                .stream().map(CirurgiaProcedimentoResponseDTO::new).toList();
+    }
 }

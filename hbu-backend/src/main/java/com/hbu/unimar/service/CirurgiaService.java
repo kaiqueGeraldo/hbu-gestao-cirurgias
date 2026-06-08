@@ -217,4 +217,48 @@ public class CirurgiaService {
             }
         }
     }
+
+    @Transactional
+    public CirurgiaResponseDTO reagendarCirurgia(UUID cirurgiaId, ReagendamentoCirurgiaDTO dto) {
+        String usuarioAutenticado = securityContext.obterUsuarioLogado();
+        log.info("Gestor [{}] solicitou reagendamento (Drag/Drop) da cirurgia ID: {}", usuarioAutenticado, cirurgiaId);
+
+        if (dto.fimPrevisto().isBefore(dto.inicioPrevisto()) || dto.fimPrevisto().isEqual(dto.inicioPrevisto())) {
+            throw new IllegalArgumentException("O horário de fim deve ser posterior ao horário de início.");
+        }
+
+        Cirurgia cirurgia = cirurgiaRepository.findById(cirurgiaId)
+                .orElseThrow(() -> new IllegalArgumentException("Cirurgia não encontrada com o ID fornecido."));
+
+        if (cirurgia.getStatusAtual() == StatusCirurgia.CANCELADO || cirurgia.getStatusAtual() == StatusCirurgia.FINALIZADO) {
+            throw new IllegalStateException("Risco de consistência: Não é possível reagendar uma cirurgia que já foi finalizada ou cancelada.");
+        }
+
+        SalaCirurgica novaSala = salaRepository.findById(dto.salaId())
+                .orElseThrow(() -> new IllegalArgumentException("Nova sala não encontrada."));
+
+        cirurgia.setSala(novaSala);
+        cirurgia.setHorarioPrevisto(Range.closedOpen(dto.inicioPrevisto(), dto.fimPrevisto()));
+
+        Cirurgia cirurgiaAtualizada = cirurgiaRepository.save(cirurgia);
+        log.info("Cirurgia reagendada com sucesso para a sala: {}", novaSala.getNomeNumero());
+
+        return new CirurgiaResponseDTO(cirurgiaAtualizada);
+    }
+
+    @Transactional(readOnly = true)
+    public CirurgiaResponseDTO buscarPorId(UUID id) {
+        Cirurgia cirurgia = cirurgiaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cirurgia não encontrada."));
+        return new CirurgiaResponseDTO(cirurgia);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CirurgiaResponseDTO> listarTodas() {
+        log.info("Buscando todas as cirurgias registradas no mapa.");
+        return cirurgiaRepository.findAll()
+                .stream()
+                .map(CirurgiaResponseDTO::new)
+                .toList();
+    }
 }

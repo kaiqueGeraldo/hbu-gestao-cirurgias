@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -60,5 +61,29 @@ public class CirurgiaController {
         log.info("Requisição HTTP POST recebida para cancelar cirurgia ID: {}", id);
         CirurgiaResponseDTO response = cirurgiaService.cancelarCirurgia(id, dto);
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/reagendar")
+    @PreAuthorize("hasAnyRole('GESTOR_CC', 'ADMIN')")
+    public ResponseEntity<CirurgiaResponseDTO> reagendarCirurgia(
+            @PathVariable UUID id,
+            @RequestBody @Valid ReagendamentoCirurgiaDTO dto) {
+
+        log.info("Requisição HTTP PATCH recebida para reagendar cirurgia ID: {}", id);
+        CirurgiaResponseDTO response = cirurgiaService.reagendarCirurgia(id, dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('RECEPCAO', 'MEDICO', 'GESTOR_CC', 'ADMIN')")
+    public ResponseEntity<CirurgiaResponseDTO> buscarPorId(@PathVariable UUID id) {
+        return ResponseEntity.ok(cirurgiaService.buscarPorId(id));
+    }
+
+    @GetMapping
+    @PreAuthorize("hasAnyRole('RECEPCAO', 'MEDICO', 'GESTOR_CC', 'ADMIN')")
+    public ResponseEntity<List<CirurgiaResponseDTO>> listarTodas() {
+        log.info("Requisição HTTP GET para listar todas as cirurgias.");
+        return ResponseEntity.ok(cirurgiaService.listarTodas());
     }
 }

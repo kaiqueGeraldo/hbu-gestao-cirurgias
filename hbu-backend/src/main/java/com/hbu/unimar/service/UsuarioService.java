@@ -90,22 +90,26 @@ public class UsuarioService {
         return new UsuarioResponseDTO(atualizado);
     }
 
-    @Transactional
-    public void inativarUsuario(UUID id) {
-        log.info("Iniciando inativação (Soft Delete) do usuário ID: {}", id);
+    @Transactional(readOnly = true)
+    public List<UsuarioResponseDTO> listarTodosUsuarios() {
+        return usuarioRepository.findAll().stream().map(UsuarioResponseDTO::new).toList();
+    }
 
+    @Transactional
+    public void alternarStatusUsuario(UUID id) {
+        log.info("Iniciando alteração de status do usuário ID: {}", id);
         String emailAdminLogado = securityContext.obterUsuarioLogado();
 
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
         if (usuario.getEmail().equalsIgnoreCase(emailAdminLogado)) {
-            log.warn("Bloqueio de segurança ativado: O usuário [{}] tentou inativar a própria conta (ID: {}).", emailAdminLogado, id);
-            throw new IllegalStateException("Ação negada: Você não pode inativar sua própria conta de acesso.");
+            log.warn("Tentativa de auto-bloqueio negada para o admin: {}", emailAdminLogado);
+            throw new IllegalStateException("Ação negada: Você não pode alterar o status da sua própria conta.");
         }
 
-        usuario.setAtivo(false);
+        usuario.setAtivo(!usuario.getAtivo());
         usuarioRepository.save(usuario);
-        log.info("Usuário ID {} inativado com sucesso. Acesso ao sistema revogado.", id);
+        log.info("Status do usuário {} alterado para: {}", usuario.getEmail(), usuario.getAtivo() ? "ATIVO" : "INATIVO");
     }
 }

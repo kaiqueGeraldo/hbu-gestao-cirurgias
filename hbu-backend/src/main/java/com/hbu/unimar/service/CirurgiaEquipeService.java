@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -88,5 +89,19 @@ public class CirurgiaEquipeService {
         log.info("Substituição concluída com sucesso. Nova alocação ID: {}", salva.getId());
 
         return new MembroEquipeResponseDTO(salva);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MembroEquipeResponseDTO> listarEquipeAtiva(UUID cirurgiaId) {
+        log.info("Consultando equipe médica ativa para a cirurgia ID: {}", cirurgiaId);
+
+        if (!cirurgiaRepository.existsById(cirurgiaId)) {
+            throw new IllegalArgumentException("Cirurgia não encontrada.");
+        }
+
+        return equipeRepository.findByCirurgiaIdAndIsAtivoTrue(cirurgiaId)
+                .stream()
+                .map(MembroEquipeResponseDTO::new)
+                .toList();
     }
 }

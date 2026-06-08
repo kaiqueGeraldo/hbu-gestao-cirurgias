@@ -32,8 +32,8 @@ public class UsuarioController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UsuarioResponseDTO>> listarAtivos() {
-        return ResponseEntity.ok(usuarioService.listarUsuariosAtivos());
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
+        return ResponseEntity.ok(usuarioService.listarTodosUsuarios());
     }
 
     @PatchMapping("/{id}")
@@ -45,10 +45,10 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> inativar(@PathVariable UUID id) {
-        usuarioService.inativarUsuario(id);
+    public ResponseEntity<Void> alternarStatus(@PathVariable UUID id) {
+        usuarioService.alternarStatusUsuario(id);
         return ResponseEntity.noContent().build();
     }
 }

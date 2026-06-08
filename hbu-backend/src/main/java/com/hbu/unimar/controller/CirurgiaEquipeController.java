@@ -43,4 +43,12 @@ public class CirurgiaEquipeController {
         MembroEquipeResponseDTO response = equipeService.substituirMembro(alocacaoId, dto);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/api/cirurgias/{cirurgiaId}/equipe")
+    @PreAuthorize("hasAnyRole('GESTOR_CC', 'MEDICO', 'ADMIN')")
+    public ResponseEntity<List<MembroEquipeResponseDTO>> listarEquipeDaCirurgia(@PathVariable UUID cirurgiaId) {
+        log.info("Requisição HTTP GET para listar equipe da cirurgia: {}", cirurgiaId);
+        List<MembroEquipeResponseDTO> equipe = equipeService.listarEquipeAtiva(cirurgiaId);
+        return ResponseEntity.ok(equipe);
+    }
 }

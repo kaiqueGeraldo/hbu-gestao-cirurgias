@@ -31,4 +31,10 @@ public class CirurgiaProcedimentoController {
         List<CirurgiaProcedimentoResponseDTO> response = cirurgiaProcedimentoService.sincronizarProcedimentos(cirurgiaId, dto);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{cirurgiaId}/procedimentos")
+    @PreAuthorize("hasAnyRole('MEDICO', 'GESTOR_CC', 'ADMIN')")
+    public ResponseEntity<List<CirurgiaProcedimentoResponseDTO>> listarProcedimentos(@PathVariable UUID cirurgiaId) {
+        return ResponseEntity.ok(cirurgiaProcedimentoService.listarProcedimentosDaCirurgia(cirurgiaId));
+    }
 }
