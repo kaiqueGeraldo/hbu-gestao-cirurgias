@@ -51,7 +51,6 @@ export default function AgendamentoScreen() {
     carregarDadosBase();
   }, [addToast]);
 
-  // VALIDAÇÃO CRÍTICA ADICIONADA AQUI
   const nextStep = () => {
     if (step === 1 && !formData.pacienteId) {
       addToast("Selecione um paciente para poder avançar.", "warning");
@@ -69,7 +68,6 @@ export default function AgendamentoScreen() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validação de segurança
     if (formData.dataPrevista.length !== 10) {
       addToast("Por favor, digite uma data válida e completa (DD/MM/AAAA).", "warning");
       return;
@@ -93,11 +91,14 @@ export default function AgendamentoScreen() {
       });
 
       addToast("Cirurgia agendada com sucesso!", "success");
-      formData.pacienteId = "";
-      formData.salaId = "";
-      formData.dataPrevista = "";
-      formData.inicioPrevisto = "";
-      formData.fimPrevisto = "";
+      setFormData({
+        ...formData,
+        pacienteId: "",
+        salaId: "",
+        dataPrevista: "",
+        inicioPrevisto: "",
+        fimPrevisto: "",
+      });
       setStep(1);
       
     } catch (err: any) {

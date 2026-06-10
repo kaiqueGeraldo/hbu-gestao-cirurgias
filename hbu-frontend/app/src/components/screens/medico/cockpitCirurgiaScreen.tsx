@@ -175,7 +175,7 @@ export default function CockpitCirurgiaScreen() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 relative pb-10">
       
-      <button onClick={() => router.push("/medico/agenda")} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors font-medium cursor-pointer">
+      <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-500 hover:text-blue-600 transition-colors font-medium cursor-pointer">
         <ArrowLeft size={18} /> Voltar para Agenda
       </button>
 

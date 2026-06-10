@@ -7,6 +7,7 @@ import {
   CalendarDays,
   CalendarPlus,
   ChevronLeft, ChevronRight,
+  Globe,
   LayoutDashboard,
   LogOut,
   ShieldAlert,
@@ -26,8 +27,8 @@ const MENU_MODULES = [
     items: [
       { label: "Dashboard", icon: LayoutDashboard, href: "/recepcao/dashboard" },
       { label: "Pacientes", icon: Users, href: "/recepcao/pacientes" },
-      { label: "Agendar Cirurgia", icon: CalendarPlus, href: "/recepcao/agendar" },
-      { label: "Agenda Cirúrgica", icon: CalendarDays, href: "/recepcao/agenda" },
+      { label: "Agendar Cirurgia", icon: CalendarPlus, href: "/recepcao/agendar-cirurgia" },
+      { label: "Agenda Cirúrgica", icon: CalendarDays, href: "/recepcao/agenda-cirurgica" },
     ]
   },
   {
@@ -41,7 +42,7 @@ const MENU_MODULES = [
     category: "Gestão do CC",
     roles: ["ROLE_GESTOR_CC", "ROLE_ADMIN"],
     items: [
-      { label: "Agenda Global", icon: CalendarDays, href: "/gestor/agenda-global" },
+      { label: "Agenda Global", icon: Globe, href: "/gestor/agenda-global" },
       { label: "Mapa Cirúrgico", icon: Activity, href: "/gestor/mapa" },
       { label: "Escala de Equipes", icon: UsersRound, href: "/gestor/escalas" },
       { label: "Salas", icon: Bed, href: "/gestor/salas" },
