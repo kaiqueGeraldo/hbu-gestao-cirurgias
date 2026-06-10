@@ -103,6 +103,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-${{ hashFiles('hbu-frontend/package-lock.json') }}-
 
+<<<<<<< HEAD
       - name: 🏗️ Build de Produção
         # Lint removido para não travar o deploy com regras rígidas no MVP
         run: npm run build
+=======
+      - name: 🧹 Análise Estática de Código (ESLint)
+        run: npm run lint
+
+      - name: 🏗️ Build de Produção
+        run: npm run build
+>>>>>>> 0261fc1db9a1c75f21594cac41b6688d41aa233d
