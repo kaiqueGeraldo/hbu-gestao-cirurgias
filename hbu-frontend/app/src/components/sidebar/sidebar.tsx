@@ -27,6 +27,7 @@ const MENU_MODULES = [
       { label: "Dashboard", icon: LayoutDashboard, href: "/recepcao/dashboard" },
       { label: "Pacientes", icon: Users, href: "/recepcao/pacientes" },
       { label: "Agendar Cirurgia", icon: CalendarPlus, href: "/recepcao/agendar" },
+      { label: "Agenda Cirúrgica", icon: CalendarDays, href: "/recepcao/agenda" },
     ]
   },
   {

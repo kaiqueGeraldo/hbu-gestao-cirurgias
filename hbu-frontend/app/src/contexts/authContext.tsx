@@ -39,6 +39,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserPayload | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const logout = useCallback(() => {
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    setUser(null);
+    router.push("/auth");
+  }, [router]);
+
   useEffect(() => {
     const token = document.cookie.split("; ").find((row) => row.startsWith("token="))?.split("=")[1];
     if (token) {
@@ -49,7 +55,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         logout();
       }
     }
-  }, []);
+  }, [logout]);
+
+  useEffect(() => {
+    if (user?.exp) {
+      const tempoRestante = (user.exp * 1000) - Date.now();
+      
+      if (tempoRestante > 0) {
+        const timeoutId = setTimeout(() => {
+          addToast("Sua sessão de segurança expirou. Por favor, faça login novamente.", "warning");
+          logout();
+        }, tempoRestante);
+
+        return () => clearTimeout(timeoutId);
+      } else {
+        logout();
+      }
+    }
+  }, [user, logout, addToast]);
 
   const routeByUserRole = (role: string) => {
     switch (role) {
@@ -76,7 +99,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await loginApi(credentials);
       const token = response.data.accessToken;
 
-      // Salva o JWT no cookie. max-age=86400 (24h). SameSite=Strict para segurança
       document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Strict`;
 
       const payload = decodeJwt(token);
@@ -86,21 +108,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         routeByUserRole(payload.role);
       }
     } catch (error) {
-      // Repassa o erro para a tela (AuthScreen) exibir o alerta
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = useCallback(() => {
-    // Apaga o cookie
-    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    setUser(null);
-    router.push("/auth");
-  }, [router]);
-
-  // Escuta o evento global do `api.ts` caso o token expire durante o uso (Erro 401)
   useEffect(() => {
     const handleSessionExpired = () => {
       logout();
@@ -109,7 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     window.addEventListener("sessionExpired", handleSessionExpired);
     return () => window.removeEventListener("sessionExpired", handleSessionExpired);
-  }, [logout]);
+  }, [logout, addToast]);
 
   const contextValue = useMemo(() => ({ user, isLoading, login, logout }), [user, isLoading, login, logout]);
 

@@ -204,7 +204,7 @@ export default function MapaCirurgicoScreen() {
           </div>
         )}
 
-        <div className="min-w-500 p-6">
+        <div className="min-w-500 pt-24 px-6 pb-16">
           <div className="flex border-b border-slate-200 pb-2 mb-4 ml-28 relative">
             {HORAS_DIA.map((hora) => (
               <div key={hora} className="flex-1 text-xs font-bold text-slate-400 text-left relative">

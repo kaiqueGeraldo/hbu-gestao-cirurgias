@@ -78,4 +78,20 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<StandardError> handleIllegalStateException(IllegalStateException ex, HttpServletRequest request) {
+
+        log.warn("Bloqueio por regra de estado/negócio: {}", ex.getMessage());
+
+        StandardError error = new StandardError(
+                Instant.now(),
+                HttpStatus.CONFLICT.value(),
+                "Conflito de Regra de Negócio / Estado Inválido",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

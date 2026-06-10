@@ -1,8 +1,7 @@
 "use client";
 
 import { useToast } from "@/app/src/contexts/toastContext";
-import { getEquipeCirurgia } from "@/app/src/services/cirurgiaEquipeService";
-import { getCirurgias } from "@/app/src/services/cirurgiaService";
+import { getMinhasCirurgias } from "@/app/src/services/cirurgiaService";
 import { CirurgiaResponseDTO } from "@/app/src/types/cirurgia";
 import { motion, Variants } from "framer-motion";
 import { Bed, CalendarDays, ChevronRight, Loader2, Lock, Stethoscope, User } from "lucide-react";
@@ -28,41 +27,31 @@ export default function AgendaMedicaScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   const carregarAgenda = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await getCirurgias();
-      const dados = Array.isArray(response.data) ? response.data : response.data.content || [];
-      
-      // Validação Tática: Checa se a equipe mínima foi alocada para habilitar o Cockpit
-      const cirurgiasValidadas = await Promise.all(dados.map(async (c: CirurgiaResponseDTO) => {
-        try {
-          const reqEquipe = await getEquipeCirurgia(c.id);
-          const equipe = reqEquipe.data || [];
-          const temEquipe = equipe.some((e: any) => e.papel === "CIRURGIAO_PRINCIPAL");
-          return { ...c, liberadaParaExecucao: temEquipe };
-        } catch {
-          return { ...c, liberadaParaExecucao: false };
-        }
-      }));
-
-      setCirurgias(cirurgiasValidadas);
-    } catch (error: any) {
-      addToast(error.message || "Erro ao carregar sua agenda.", "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [addToast]);
+  setIsLoading(true);
+  try {
+    const response = await getMinhasCirurgias();
+    const dados = Array.isArray(response.data) ? response.data : response.data.content || [];
+    setCirurgias(dados);
+  } catch (error: any) {
+    addToast(error.response?.data?.message || "Erro ao carregar sua agenda pessoal.", "error");
+  } finally {
+    setIsLoading(false);
+  }
+}, [addToast]);
 
   useEffect(() => {
     carregarAgenda();
   }, [carregarAgenda]);
 
-  const formatarHora = (isoString: string) => {
-    if (!isoString) return "--:--";
+  const formatarDataHora = (isoString: string) => {
+    if (!isoString) return "--/--/---- --:--";
     try {
-      return new Date(isoString).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      const date = new Date(isoString);
+      const dataFormatada = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+      const horaFormatada = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      return `${dataFormatada} às ${horaFormatada}`;
     } catch {
-      return "--:--";
+      return "--/--/---- --:--";
     }
   };
 
@@ -78,7 +67,7 @@ export default function AgendaMedicaScreen() {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-blue-600">
         <Loader2 className="w-10 h-10 animate-spin mb-4" />
-        <p className="font-bold">Sincronizando agenda...</p>
+        <p className="font-bold">Sincronizando sua agenda exclusiva...</p>
       </div>
     );
   }
@@ -91,7 +80,7 @@ export default function AgendaMedicaScreen() {
             <CalendarDays className="text-blue-600" /> Minha Agenda Cirúrgica
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Visualize seus procedimentos agendados e assuma o controle no cockpit.
+            Visualize os procedimentos onde você está escalado e assuma o controle no cockpit.
           </p>
         </div>
       </div>
@@ -101,7 +90,8 @@ export default function AgendaMedicaScreen() {
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
             <Stethoscope className="w-8 h-8 text-slate-400" />
           </div>
-          <h3 className="text-lg font-bold text-slate-700">Nenhum procedimento agendado</h3>
+          <h3 className="text-lg font-bold text-slate-700">Agenda Livre</h3>
+          <p className="text-slate-500 text-sm mt-1">Você não possui procedimentos escalados no momento.</p>
         </div>
       ) : (
         <motion.div variants={containerVariants} initial="hidden" animate="show" className="space-y-4">
@@ -112,12 +102,12 @@ export default function AgendaMedicaScreen() {
 
             return (
               <motion.div key={cirurgia.id} variants={itemVariants} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col sm:flex-row group transition-all hover:border-blue-300 hover:shadow-md">
-                <div className="bg-slate-50 sm:w-48 p-6 flex sm:flex-col items-center sm:items-start justify-between sm:justify-center border-b sm:border-b-0 sm:border-r border-slate-100 shrink-0 gap-4">
+                <div className="bg-slate-50 sm:w-56 p-6 flex sm:flex-col items-center sm:items-start justify-between sm:justify-center border-b sm:border-b-0 sm:border-r border-slate-100 shrink-0 gap-4">
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Início Previsto</span>
-                    <span className="text-3xl font-black text-slate-900 tracking-tighter">{formatarHora(cirurgia.inicioPrevisto)}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Início Previsto</span>
+                    <span className="text-xl font-black text-slate-900 tracking-tighter">{formatarDataHora(cirurgia.inicioPrevisto)}</span>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                  <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border whitespace-nowrap ${
                     isAgendado ? 'bg-amber-50 text-amber-600 border-amber-200' : 
                     cirurgia.statusAtual === 'EM_ANDAMENTO' ? 'bg-blue-50 text-blue-600 border-blue-200' : 
                     'bg-emerald-50 text-emerald-600 border-emerald-200'
@@ -148,7 +138,7 @@ export default function AgendaMedicaScreen() {
                     </button>
                   ) : (
                     <div className="w-full sm:w-auto bg-slate-100 border border-slate-200 text-slate-500 font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
-                      <Lock size={16} /> Aguardando Escala
+                      <Lock size={16} /> Aguardando Escala Completa
                     </div>
                   )}
                 </div>

@@ -1,5 +1,5 @@
 import { apiRequest } from "@/app/src/services/api";
-import { AgendamentoCirurgiaDTO } from "@/app/src/types/cirurgia";
+import { AgendamentoCirurgiaDTO, CancelamentoDTO } from "@/app/src/types/cirurgia";
 
 export async function agendarCirurgia(data: AgendamentoCirurgiaDTO) {
   return apiRequest("/cirurgias/agendar", {
@@ -15,6 +15,10 @@ export async function getCirurgias() {
 export async function getCirurgiaById(id: string) {
   return apiRequest(`/cirurgias/${id}`, { method: "GET" });
 }
+
+export const getMinhasCirurgias = async () => {
+    return await apiRequest('/cirurgias/minhas', { method: 'GET'});
+};
 
 export async function atualizarStatusCirurgia(id: string, novoStatus: string, usuarioResponsavel: string) {
   return apiRequest(`/cirurgias/${id}/status`, {
@@ -36,3 +40,11 @@ export async function reagendarCirurgia(id: string | number, payload: { salaId: 
     body: JSON.stringify(payload),
   });
 }
+
+export const cancelarCirurgia = async (id: string, dados: CancelamentoDTO) => {
+  const response = await apiRequest(`/cirurgias/${id}/cancelar`, {
+    method: "POST",
+    body: JSON.stringify(dados),
+  });
+  return response.data;
+};

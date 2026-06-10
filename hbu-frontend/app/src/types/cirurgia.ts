@@ -17,3 +17,7 @@ export interface CirurgiaResponseDTO {
   inicioPrevisto: string;
   fimPrevisto: string;
 }
+
+export interface CancelamentoDTO {
+    motivoCancelamento: string;
+}

@@ -86,4 +86,11 @@ public class CirurgiaController {
         log.info("Requisição HTTP GET para listar todas as cirurgias.");
         return ResponseEntity.ok(cirurgiaService.listarTodas());
     }
+
+    @GetMapping("/minhas")
+    @PreAuthorize("hasRole('MEDICO')")
+    public ResponseEntity<List<CirurgiaResponseDTO>> listarMinhasCirurgias() {
+        log.info("Requisição HTTP GET para listar cirurgias do médico logado.");
+        return ResponseEntity.ok(cirurgiaService.listarMinhasCirurgias());
+    }
 }

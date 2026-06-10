@@ -41,6 +41,8 @@ public class CirurgiaService {
             throw new IllegalArgumentException("O horário de fim deve ser posterior ao horário de início.");
         }
 
+        validarDisponibilidadeSala(dto.salaId(), dto.inicioPrevisto(), dto.fimPrevisto(), null);
+
         SalaCirurgica sala = salaRepository.findById(dto.salaId())
                 .orElseThrow(() -> new IllegalArgumentException("Sala não encontrada com o ID fornecido."));
 
@@ -85,9 +87,12 @@ public class CirurgiaService {
             boolean possuiCirurgiao = cirurgiaEquipeRepository.existsByCirurgiaIdAndPapelAndIsAtivoTrue(
                     cirurgiaId, PapelEquipe.CIRURGIAO_PRINCIPAL);
 
-            if (!possuiCirurgiao) {
-                log.warn("Falha na transição de status. Cirurgia {} não possui CIRURGIAO_PRINCIPAL ativo.", cirurgiaId);
-                throw new IllegalStateException("A cirurgia não pode avançar para preparo sem um Cirurgião Principal alocado.");
+            boolean possuiAnestesista = cirurgiaEquipeRepository.existsByCirurgiaIdAndPapelAndIsAtivoTrue(
+                    cirurgiaId, PapelEquipe.ANESTESISTA);
+
+            if (!possuiCirurgiao || !possuiAnestesista) {
+                log.warn("Bloqueio de transição: Cirurgia {} tentou avançar sem equipe mínima.", cirurgiaId);
+                throw new IllegalStateException("Transição bloqueada: A cirurgia exige a alocação de um Cirurgião Principal e um Anestesista para iniciar o preparo.");
             }
         }
 
@@ -234,6 +239,8 @@ public class CirurgiaService {
             throw new IllegalStateException("Risco de consistência: Não é possível reagendar uma cirurgia que já foi finalizada ou cancelada.");
         }
 
+        validarDisponibilidadeSala(dto.salaId(), dto.inicioPrevisto(), dto.fimPrevisto(), cirurgiaId);
+
         SalaCirurgica novaSala = salaRepository.findById(dto.salaId())
                 .orElseThrow(() -> new IllegalArgumentException("Nova sala não encontrada."));
 
@@ -257,6 +264,41 @@ public class CirurgiaService {
     public List<CirurgiaResponseDTO> listarTodas() {
         log.info("Buscando todas as cirurgias registradas no mapa.");
         return cirurgiaRepository.findAll()
+                .stream()
+                .map(CirurgiaResponseDTO::new)
+                .toList();
+    }
+
+    private void validarDisponibilidadeSala(UUID salaId, ZonedDateTime inicio, ZonedDateTime fim, UUID cirurgiaIdAtual) {
+        boolean isOcupada;
+        if (cirurgiaIdAtual == null) {
+            isOcupada = cirurgiaRepository.existsOverlappingCirurgia(salaId, inicio, fim);
+        } else {
+            isOcupada = cirurgiaRepository.existsOverlappingCirurgiaIgnorandoId(salaId, cirurgiaIdAtual, inicio, fim);
+        }
+
+        if (isOcupada) {
+            log.warn("Tentativa de agendamento em horário conflitante. Sala ID: {}, Período: {} - {}", salaId, inicio, fim);
+            throw new IllegalStateException("Conflito de agendamento: A sala selecionada já possui uma cirurgia prevista para este horário.");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<CirurgiaResponseDTO> listarMinhasCirurgias() {
+        String emailUsuarioLogado = securityContext.obterUsuarioLogado();
+        log.info("Buscando agenda médica para o usuário: {}", emailUsuarioLogado);
+
+        Usuario usuario = (Usuario) usuarioRepository.findByEmail(emailUsuarioLogado)
+                .orElseThrow(() -> new IllegalStateException("Usuário logado não encontrado na base."));
+
+        if (usuario.getProfissional() == null) {
+            log.warn("Acesso bloqueado: Usuário Médico {} não possui vínculo com Profissional.", emailUsuarioLogado);
+            throw new AccessDeniedException("Sua conta não possui vínculo com um profissional de saúde. Contate o Gestor.");
+        }
+
+        UUID profissionalId = usuario.getProfissional().getId();
+
+        return cirurgiaRepository.findCirurgiasAtivasPorProfissional(profissionalId)
                 .stream()
                 .map(CirurgiaResponseDTO::new)
                 .toList();
